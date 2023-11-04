@@ -1,0 +1,17 @@
+body{
+    background-color: #313131;
+}
+h1{
+    color: white;
+}
+.hobby-text{
+    width: 800px;
+    margin: 0 auto;
+    border: 2px double deepskyblue;
+    padding: 35px;
+    color: deepskyblue;
+}
+.hobby-text a{
+    color: white;
+    font-size: 19px;
+}
