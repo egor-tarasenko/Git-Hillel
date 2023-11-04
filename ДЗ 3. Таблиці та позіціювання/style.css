@@ -1,0 +1,89 @@
+body{
+    background-color: #223344;
+    font-family: "Roboto", serif;
+    font-weight: lighter;
+}
+.container{
+    width: 786px;
+    margin: 0 auto;
+    padding-bottom: 20px;
+}
+.container h1{
+    font-weight: bold;
+    margin: 20px 0 20px 0;
+}
+table{
+    border-collapse: collapse;
+    border: 1px solid #888;
+    width: 100%;
+}
+table th{
+    user-select: none;
+    position: relative;
+    text-align: center;
+    width: 20px;
+    padding: 20px;
+    font-weight: lighter;
+    border: 1px solid #888;
+}
+
+.des th{
+    border: none;
+    font-weight: bold;
+    border-bottom: 3px double #888;
+}
+.des th:nth-child(5){
+    border-right: 1px solid #888;
+}
+th::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 5px;
+    margin: 5px 5px 0 0;
+    background-color: red;
+    border-radius: 50%;
+    display: none;
+}
+
+th:hover::before {
+    display: block;
+}
+th:active{
+    color: red;
+}
+.top{
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    background-color: red;
+    text-align: center;
+    padding-top: 15px;
+    float: right;
+    margin-right: 50px;
+    margin-bottom: 20px;
+    margin-top: -70px;
+}
+.top a{
+    color: white;
+    text-decoration: none;
+}
+
+
+.top:checked {
+    animation: scrollUp 1s;
+}
+
+@keyframes scrollUp {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
+
+
+
