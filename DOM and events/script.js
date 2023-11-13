@@ -1,43 +1,51 @@
-const todoList = document.getElementById('todoList')
+function addElement() {
+    let newItem = prompt("Введите новый элемент для To-Do списка:")
+    if (newItem) {
+        let list = document.getElementById("todoList")
+        let li = document.createElement("li")
+        li.className = "list-group-item d-flex justify-content-between align-items-center"
 
-function add() {
-    const listItem = document.createElement('li')
+        let textNode = document.createElement("span")
+        textNode.appendChild(document.createTextNode(newItem))
+        li.appendChild(textNode)
 
-    const taskTitle = prompt('Enter a title for the new task:')
-    if (taskTitle) {
-        const title = document.createTextNode(taskTitle)
-        listItem.appendChild(title)
+        let buttonsDiv = document.createElement("div")
 
-        const input = document.createElement('input')
-        input.classList.add('form-control')
-        input.setAttribute('type', 'text')
-        input.setAttribute('placeholder', 'Enter task details...')
-
-        listItem.appendChild(input)
-
-        const deleteButton = document.createElement('button')
-        deleteButton.classList.add('btn', 'btn-danger', 'ms-2')
-        deleteButton.innerText = 'Delete'
-
-        deleteButton.addEventListener('click', function () {
-            if (confirm('Are you sure you want to delete this task?')) {
-                listItem.remove()
-            }
+        let editButton = document.createElement("button")
+        editButton.className = "btn btn-warning btn-sm"
+        editButton.innerText = "Редактировать"
+        editButton.addEventListener("click", function() {
+            editElement(li)
         })
+        buttonsDiv.appendChild(editButton)
 
-        listItem.appendChild(deleteButton)
+        let deleteButton = document.createElement("button")
+        deleteButton.className = "btn btn-danger btn-sm ms-2"
+        deleteButton.innerText = "Удалить"
+        deleteButton.addEventListener("click", function() {
+            removeElement(li)
+        })
+        buttonsDiv.appendChild(deleteButton)
 
-        todoList.appendChild(listItem)
+        li.appendChild(buttonsDiv)
+
+        list.appendChild(li)
     }
 }
 
-function removeElement() {
-    const listItem = document.querySelector('#todoList li:last-child')
-    if (listItem) {
-        if (confirm('Are you sure you want to delete this task?')) {
-            listItem.remove()
-        }
-    } else {
-        alert('No tasks to remove.')
+function removeElement(item) {
+    let list = document.getElementById("todoList")
+    let confirmDelete = confirm("Вы уверены, что хотите удалить элемент?")
+
+    if (confirmDelete) {
+        list.removeChild(item)
+    }
+}
+
+function editElement(item) {
+    let newText = prompt("Введите новый текст для элемента:", item.firstChild.firstChild.nodeValue)
+
+    if (newText) {
+        item.firstChild.firstChild.nodeValue = newText
     }
 }
