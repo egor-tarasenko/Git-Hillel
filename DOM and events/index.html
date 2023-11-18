@@ -11,7 +11,7 @@
 <div class="container">
     <h1 class="text-center">To-Do List</h1>
     <div class="button">
-        <button id="addElement" class="btn btn-primary">Добавить элемент</button>
+        <button id="addElement" class="btn btn-primary" onclick="create()">Добавить элемент</button>
     </div>
     <ul id="todoList" class="list-group">
 
@@ -23,17 +23,39 @@
         <div class="modal-content">
             <form id="form" action="#" method="post">
                 <div class="modal-body">
-                    <label for="form-title" class="form-label">Title</label>
+                    <input id="form-uuid" type="hidden">
+                    <label for="form-title" class="form-label">Заголовок</label>
                     <input type="text" id="form-title" name="title" class="form-control">
+                    <div id="form-title-invalid-feedback" class="invalid-feedback"></div>
+
+                    <label for="form-description" class="form-label">Описание</label>
+                    <textarea id="form-description" name="description" class="form-control"></textarea>
+                    <div id="form-description-invalid-feedback" class="invalid-feedback"></div>
                 </div>
                 <div class="modal-footer">
                     <button id="btnCloseFormModal" type="button" class="btn btn-secondary">Close</button>
                     <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>
+
+<div id="remove-modal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>Вы точно хотите удалить элемент?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="btnDeleteCancel" type="button" class="btn btn-secondary">Нет</button>
+                <button id="btnDeleteConfirm" type="button" class="btn btn-danger">Потвердить удаление</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
