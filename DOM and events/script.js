@@ -81,13 +81,14 @@ function create() {
 
 function edit(uuid) {
     const title = document.getElementById(`title-${uuid}`).innerText
-    const description = document.getElementById(`description-${uuid}`).value
+    const description = document.getElementById(`description-${uuid}`).innerText
 
     document.getElementById('form-title').value = title
     document.getElementById('form-description').value = description
     document.getElementById('form-uuid').value = uuid
     showFormModal()
 }
+
 
 const btnDeleteConfirm = document.getElementById('btnDeleteConfirm');
 const btnCancel = document.getElementById('btnDeleteCancel');
@@ -118,18 +119,14 @@ function save(data) {
     const editedLi = document.getElementById(`item-${uuid}`)
     if (editedLi) {
         editedLi.querySelector(`#title-${uuid}`).innerText = data.title
-        return
-    }
-    const editedDescription = document.getElementById(`item-${uuid}`)
-    if (editedDescription){
-        editedDescription.querySelector(`#description-${uuid}`).value = data.description
+        editedLi.querySelector(`#description-${uuid}`).innerText = data.description
         return
     }
     let liElement = document.createElement('li')
     liElement.id = `item-${uuid}`
     liElement.innerHTML = `
     <div id="title-${uuid}">${data.title}</div>
-    <textarea id="description-${uuid}">${data.description}</textarea>
+    <div id="description-${uuid}">${data.description}</div>
     <div>
         <button data-uuid='${uuid}' class="btn btn-warning btn-sm edit-button">Edit</button>
         <button data-uuid='${uuid}' class="btn btn-danger remove-button">Remove</button>
