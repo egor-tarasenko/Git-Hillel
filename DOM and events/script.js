@@ -1,6 +1,7 @@
 const addBtn = document.getElementById('addElement')
 addBtn.addEventListener('click', function showFormModal() {
     document.getElementById('form-modal').classList.add('d-block')
+    create()
 })
 
 const btnCloseFormModal = document.getElementById('btnCloseFormModal')
@@ -12,7 +13,7 @@ function showFormModal() {
     document.getElementById('form-modal').classList.add('d-block')
 }
 
-function close() {
+function closeFormModal() {
     document.getElementById('form-modal').classList.remove('d-block')
 }
 
@@ -30,7 +31,7 @@ document.getElementById('form').addEventListener('submit', function (event) {
     }
     if (validateForm(data)) {
         save(data)
-        close()
+        closeFormModal()
     }
 })
 
@@ -80,29 +81,36 @@ function create() {
 
 function edit(uuid) {
     const title = document.getElementById(`title-${uuid}`).innerText
+    const description = document.getElementById(`description-${uuid}`).value
 
     document.getElementById('form-title').value = title
+    document.getElementById('form-description').value = description
     document.getElementById('form-uuid').value = uuid
     showFormModal()
 }
 
+const btnDeleteConfirm = document.getElementById('btnDeleteConfirm');
+const btnCancel = document.getElementById('btnDeleteCancel');
+const removeModal = document.getElementById('remove-modal');
+
+btnDeleteConfirm.addEventListener('click', handleDeleteConfirm);
+btnCancel.addEventListener('click', handleDeleteCancel);
+
 function remove(uuid) {
-    const btnDeleteConfirm = document.getElementById('btnDeleteConfirm')
-    btnDeleteConfirm.dataset.uuid = uuid
-    const removeModal = document.getElementById('remove-modal')
-    removeModal.classList.add('d-block')
-
-    btnDeleteConfirm.addEventListener('click', function () {
-        const uuidToRemove = this.dataset.uuid
-        document.getElementById(`item-${uuidToRemove}`).remove()
-        removeModal.classList.remove('d-block')
-    })
-
-    const btnCancel = document.getElementById('btnDeleteCancel')
-    btnCancel.addEventListener('click', function () {
-        removeModal.classList.remove('d-block')
-    })
+    btnDeleteConfirm.dataset.uuid = uuid;
+    removeModal.classList.add('d-block');
 }
+
+function handleDeleteConfirm() {
+    const uuidToRemove = btnDeleteConfirm.dataset.uuid;
+    document.getElementById(`item-${uuidToRemove}`).remove();
+    removeModal.classList.remove('d-block');
+}
+
+function handleDeleteCancel() {
+    removeModal.classList.remove('d-block');
+}
+
 
 function save(data) {
     const uuid = data.uuid ? data.uuid : generateUuid()
@@ -112,6 +120,11 @@ function save(data) {
         editedLi.querySelector(`#title-${uuid}`).innerText = data.title
         return
     }
+    const editedDescription = document.getElementById(`item-${uuid}`)
+    if (editedDescription){
+        editedDescription.querySelector(`#description-${uuid}`).value = data.description
+        return
+    }
     let liElement = document.createElement('li')
     liElement.id = `item-${uuid}`
     liElement.innerHTML = `
@@ -119,7 +132,7 @@ function save(data) {
     <textarea id="description-${uuid}">${data.description}</textarea>
     <div>
         <button data-uuid='${uuid}' class="btn btn-warning btn-sm edit-button">Edit</button>
-        <button data-uuid='${uuid}' class="btn btn-danger  remove-button">Remove</button>
+        <button data-uuid='${uuid}' class="btn btn-danger remove-button">Remove</button>
     </div>`
 
     liElement.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center')
