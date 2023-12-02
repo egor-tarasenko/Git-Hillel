@@ -28,7 +28,7 @@ function fetchSearch(query, gifCount) {
 }
 
 function handleImageClick(item) {
-    window.location.href = 'https://giphy.com/gifs/storyful-trump-george-santos-brendan-gutenschwager-via-storyful-deIQBpFIcEVgpdi45J'
+    window.location.href = item.url
 }
 
 function craeteHtml(item) {
