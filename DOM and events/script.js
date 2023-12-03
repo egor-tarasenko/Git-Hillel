@@ -1,5 +1,58 @@
 let todoList = []
 
+// server
+
+let server = {
+    url: 'https://crudapi.co.uk/api/v1/todo-list',
+    token: '4YP6v9VuWhe73ikwAygJALabvy8yKigtDXGkhQsgkL3RUzVVBA',
+
+    // Получение списка элементов с сервера
+    list() {
+        return fetch(this.url, {
+            method: 'get',
+            headers: new Headers({
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }),
+        }).then(response => response.json())
+    },
+
+    // Добавление нового элемента на сервер
+    store(data) {
+        return fetch(this.url, {
+            method: 'post',
+            headers: new Headers({
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify([data])
+        }).then(response => response.json())
+    },
+
+    // Обновление элемента на сервере
+    update(uuid, data) {
+        return fetch(`${this.url}/${uuid}`, {
+            method: 'put',
+            headers: new Headers({
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(data)
+        }).then(response => response.json())
+    },
+
+    // Удаление элемента с сервера
+    remove(uuid) {
+        return fetch(`${this.url}/${uuid}`, {
+            method: 'delete',
+            headers: new Headers({
+                'Authorization': `Bearer ${this.token}`,
+                'Content-Type': 'application/json'
+            }),
+        }).then(response => response.json())
+    }
+}
+
 // button init
 
 const addBtn = document.getElementById('addElement')
@@ -86,9 +139,23 @@ function clearErrors() {
 // pars storage
 
 function init() {
-    todoList = JSON.parse(localStorage.getItem('todo-list'))
-    todoList.forEach((item) => createHtmlTodoItem(item))
+    server.list().then((list) => {
+        list.items.sort((a, b) => {
+            return a._created - b._created
+        }).forEach((task) => {
+            let formattedTask = {
+                uuid: task._uuid,
+                title: task.title,
+                description: task.description,
+                completed: task.completed || false
+            }
+
+            todoList.push(formattedTask)
+            createHtmlTodoItem(formattedTask)
+        })
+    })
 }
+
 
 // create new empty window
 function create() {
@@ -111,6 +178,19 @@ function edit(uuid) {
     showFormModal()
 }
 
+function updateCheckboxStatus(uuid, checked) {
+    server.update(uuid, { completed: checked })
+    .then((response) => {
+        let formattedTask = {
+            uuid: response._uuid,
+            title: response.title,
+            description: response.description,
+            completed: response.completed
+        }
+        updateHtmlTodoItemCheckbox(formattedTask)
+    })
+}
+
 const btnDeleteConfirm = document.getElementById('btnDeleteConfirm')
 const btnCancel = document.getElementById('btnDeleteCancel')
 const removeModal = document.getElementById('remove-modal')
@@ -129,11 +209,13 @@ function handleDeleteConfirm() {
     const uuidToRemove = btnDeleteConfirm.dataset.uuid
     const index = todoList.findIndex((item) => item.uuid === uuidToRemove)
     if (index !== -1) {
-        todoList.splice(index, 1)
-        localStorage.setItem('todo-list', JSON.stringify(todoList))
+        server.remove(uuidToRemove)
+        .then(() => {
+            todoList.splice(index, 1)
+            document.getElementById(`item-${uuidToRemove}`).remove()
+            removeModal.classList.remove('d-block')
+        })
     }
-    document.getElementById(`item-${uuidToRemove}`).remove()
-    removeModal.classList.remove('d-block')
 }
 
 function handleDeleteCancel() {
@@ -143,35 +225,54 @@ function handleDeleteCancel() {
 // save inf
 
 function save(data) {
-    const uuid = data.uuid ? data.uuid : generateUuid()
+    if (!data.uuid) {
+        server.store({
+            title: data.title,
+            description: data.description
+        }).then((response) => {
+            let formatedTask = {
+                uuid: response.items[0]._uuid,
+                title: response.items[0].title,
+                description: response.items[0].description
+            }
 
-    data.uuid = uuid
-
-    let index = todoList.findIndex((item) => item.uuid === uuid)
-    if (index === -1) {
-        todoList.push(data)
+            todoList.push(formatedTask)
+            createHtmlTodoItem(formatedTask)
+        })
     } else {
-        todoList[index] = data
+        server.update(data.uuid, {title: data.title, description: data.description}).then((response) => {
+            let formatedTask = {
+                uuid: response._uuid,
+                title: response.title,
+                description: response.description
+            }
+
+            let index = todoList.findIndex((item) => item.uuid === formatedTask.uuid)
+            if (index !== -1) {
+                todoList[index] = formatedTask
+                editHtmlTodoItem(formatedTask)
+            }
+        })
     }
+}
 
-    localStorage.setItem('todo-list', JSON.stringify(todoList))
-
-    const editedLi = document.getElementById(`item-${uuid}`)
+// edit html
+function editHtmlTodoItem(formatedTask) {
+    const editedLi = document.getElementById(`item-${formatedTask.uuid}`)
     if (editedLi) {
-        editedLi.querySelector(`#title-${uuid}`).innerText = data.title
-        editedLi.querySelector(`#description-${uuid}`).innerText = data.description
-        return
+        editedLi.querySelector(`#title-${formatedTask.uuid}`).innerText = formatedTask.title
+        editedLi.querySelector(`#description-${formatedTask.uuid}`).innerText = formatedTask.description
+        return;
     }
-    createHtmlTodoItem(data)
 }
 
 // create html
-
 function createHtmlTodoItem(data) {
     let liElement = document.createElement('li')
     liElement.id = `item-${data.uuid}`
     liElement.innerHTML = `
-    <div id="title-${data.uuid}">${data.title}</div>
+    <input type="checkbox" id="checkbox-${data.uuid}" ${data.completed ? 'checked' : ''} class="mr-2">
+    <div id="title-${data.uuid}" class="${data.completed ? 'completed' : ''}">${data.title}</div>
     <div id="description-${data.uuid}">${data.description}</div>
     <div>
         <button data-uuid='${data.uuid}' class="btn btn-warning btn-sm edit-button">Edit</button>
@@ -181,19 +282,33 @@ function createHtmlTodoItem(data) {
     liElement.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center')
 
     liElement.querySelector('.edit-button').addEventListener('click', function (event) {
-        edit(event.target.dataset.uuid)
+        edit(event.target.dataset.uuid);
     })
 
     liElement.querySelector('.remove-button').addEventListener('click', function (event) {
         remove(event.target.dataset.uuid)
     })
+
+    liElement.querySelector(`#checkbox-${data.uuid}`).addEventListener('change', function (event) {
+        updateCheckboxStatus(data.uuid, event.target.checked)
+    })
+
     document.getElementById('todoList').appendChild(liElement)
 }
 
-// generate uuid
-
-function generateUuid() {
-    return Math.random().toString(16).slice(2)
+function updateHtmlTodoItemCheckbox(data) {
+    const checkbox = document.getElementById(`checkbox-${data.uuid}`)
+    if (checkbox) {
+        checkbox.checked = data.completed
+        const titleElement = document.getElementById(`title-${data.uuid}`)
+        if (titleElement) {
+            titleElement.classList.toggle('completed', data.completed)
+        }
+    }
 }
 
-init()
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    init()
+})
